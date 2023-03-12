@@ -3,9 +3,9 @@ bot 模型：official v3
  
 使用说明: 
 
-1. 编译文件安装缺失依赖  
+1.编译文件安装缺失依赖  
  
-2. 编辑config  
+2.编辑config  
 	v3 : 填入你的api 以及 dokuwiki账号  
 	v1 : 填入openai账号 或者 session token 以及 dokuwiki账号  
 	
