@@ -7,7 +7,7 @@ bot 模型：official v3
 	v3 : 填入你的api 以及 dokuwiki账号  
 	v1 : 填入openai账号 或者 session token 以及 dokuwiki账号  
 	
-3.将dokuwiki 默认文件夹 复制到 DokuWikiStick文件夹 (里面应该有俩文件夹，一个server，一个dokuwiki  
+	3.将dokuwiki 默认文件夹 复制到 DokuWikiStick文件夹 (里面应该有俩文件夹，一个server，一个dokuwiki  
 4.打开格式文件夹，输入格式，里面放了格式的参考模板和案例 如果需要默认加载格式请将文件名加入 格式列表.txt  
 5.双击run.bat运行/run_with_cmd为有命令行的运行，用于调试  
 6.其他文件不需要更改  
