@@ -1,0 +1,14 @@
+gpt-3.5-turbo-0301
+gpt-3.5-turbo
+text-davinci-003
+text-davinci-002
+text-davinci-edit-001
+code-davinci-edit-001
+whisper-1
+text-curie-001
+text-babbage-001
+text-ada-001
+text-embedding-ada-002
+text-search-ada-doc-001	
+text-moderation-stable
+text-moderation-latest
