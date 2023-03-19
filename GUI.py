@@ -131,65 +131,69 @@ class Stats(QMainWindow, UI.Ui_MainWindow):
     # 主循环线程
     def loop_check(self):
         while True:
-            if len(self.word_queue) and (self.handle_flag != True):  # 读
-                self.handle_flag = True  # 写 发送信号
-                # 获取输入以及格式化名称
-                input_word = self.word_queue.pop(0)  # 获取弹出元素
-                format_name = input_word[0] + " (" + input_word[1] + ")"
-                # dokuwiki框打印输出
-                self.conn_dokuwiki_print.emit("正在处理 => " + format_name + "\n模型: " + input_word[5])
-                # 输出格式化
-                parent_type = input_word[2]
-                question = "列出{0}的中文名称 列出它的英文名称 给出它的完整定义".format(format_name) + input_word[6] + "\n此处{0}指的是{1}里的{2}\n".format(
-                     format_name, parent_type,
-                    format_name) + self.requirements + "输出字数不少于{0}个字\n".format(  # 读
-                    input_word[4])
-                if input_word[3] != "":
-                    question += input_word[3] + "\n"  # 添加note
-                question += input_word[7]  # 读
-                # 查看是否已存在类似词条
-                search_result = self.wiki.pages.search(input_word[0])  # 主函数操作 搜索
-                if len(search_result) > 0:
-                    result_list = "下面为已存在的关于{0}结果: \n(选择 Yes 则继续生成，选择 No 则取消生成)\n\n".format(input_word[0])
-                    count = 0
-                    for result in search_result:
-                        result_list += result["id"] + "\n"
-                        count += 1
-                    self.conn_search_resault_clear.emit()  # 清除搜索框
-                    self.conn_search_print.emit(result_list)
-                    # 等待确认结果
-                    while self.win_choice == 0:
-                        temp = 0
-                    if self.win_choice == QMessageBox.No:
-                        self.conn_log_print.emit("结束创建\n")
-                        self.conn_dokuwiki_print.emit("处理中断\n")
+            try:
+                if len(self.word_queue) and (self.handle_flag != True):  # 读
+                    self.handle_flag = True  # 写 发送信号
+                    # 获取输入以及格式化名称
+                    input_word = self.word_queue.pop(0)  # 获取弹出元素
+                    format_name = input_word[0] + " (" + input_word[1] + ")"
+                    # dokuwiki框打印输出
+                    self.conn_dokuwiki_print.emit("正在处理 => " + format_name + "\n模型: " + input_word[5])
+                    # 输出格式化
+                    parent_type = input_word[2]
+                    question = "列出{0}的中文名称 列出它的英文名称 给出它的完整定义".format(format_name) + input_word[6] + "\n此处{0}指的是{1}里的{2}\n".format(
+                         format_name, parent_type,
+                        format_name) + self.requirements + "输出字数不少于{0}个字\n".format(  # 读
+                        input_word[4])
+                    if input_word[3] != "":
+                        question += input_word[3] + "\n"  # 添加note
+                    question += input_word[7]  # 读
+                    # 查看是否已存在类似词条
+                    search_result = self.wiki.pages.search(input_word[0])  # 主函数操作 搜索
+                    if len(search_result) > 0:
+                        result_list = "下面为已存在的关于{0}结果: \n(选择 Yes 则继续生成，选择 No 则取消生成)\n\n".format(input_word[0])
+                        count = 0
+                        for result in search_result:
+                            result_list += result["id"] + "\n"
+                            count += 1
+                        self.conn_search_resault_clear.emit()  # 清除搜索框
+                        self.conn_search_print.emit(result_list)
+                        # 等待确认结果
+                        while self.win_choice == 0:
+                            temp = 0
+                        if self.win_choice == QMessageBox.No:
+                            self.conn_log_print.emit("结束创建\n")
+                            self.conn_dokuwiki_print.emit("处理中断\n")
+                            self.conn_search_resault_clear.emit()
+                            self.win_choice = 0
+                            self.handle_flag = False
+                            continue
+                        self.conn_dokuwiki_print.emit("处理继续")
                         self.conn_search_resault_clear.emit()
-                        self.win_choice = 0
-                        self.handle_flag = False
-                        continue
-                    self.conn_dokuwiki_print.emit("处理继续")
-                    self.conn_search_resault_clear.emit()
-                respond = GPT.chatgptweb_send_message_v3(self.bot, question, float(self.temperature),
-                                                         input_word[5])  # 获取 与gui无关
-                respond = respond.replace("• ", "  * ")
-                # 去掉废话
-                index = respond.find('【')
-                if index == -1:
-                    index = 0
-                respond = respond[index:]
-                # 创建页面 与gui无关
-                page_name = DOKUWIKI_MAIN.create_page(self.wiki, parent_type, input_word, respond)
-                self.conn_dokuwiki_print.emit('页面"{0}"添加完成\n'.format(page_name))
-                self.conn_log_print.emit("结束创建\n")
-                # 打开页面
-                target_url = "http://localhost:8800/doku.php?id=" + parent_type + ":" + input_word[0].replace(" ",
-                                                                                                              "_").lower() + "_" + \
-                             input_word[1].replace(" ", "_").lower()
-                webbrowser.open(target_url, new=0, autoraise=True)
-                self.conn_queue_print.emit(self.word_queue)
-                # 还原设置
-                self.win_choice = 0
-                self.handle_flag = False
+                    respond = GPT.chatgptweb_send_message_v3(self.bot, question, float(self.temperature),
+                                                             input_word[5])  # 获取 与gui无关
+                    respond = respond.replace("• ", "  * ")
+                    # 去掉废话
+                    index = respond.find('【')
+                    if index == -1:
+                        index = 0
+                    respond = respond[index:]
+                    # 创建页面 与gui无关
+                    page_name = DOKUWIKI_MAIN.create_page(self.wiki, parent_type, input_word, respond)
+                    self.conn_dokuwiki_print.emit('页面"{0}"添加完成\n'.format(page_name))
+                    self.conn_log_print.emit("结束创建\n")
+                    # 打开页面
+                    target_url = "http://localhost:8800/doku.php?id=" + parent_type + ":" + input_word[0].replace(" ",
+                                                                                                                  "_").lower() + "_" + \
+                                 input_word[1].replace(" ", "_").lower()
+                    webbrowser.open(target_url, new=0, autoraise=True)
+                    self.conn_queue_print.emit(self.word_queue)
+                    # 还原设置
+                    self.win_choice = 0
+                    self.handle_flag = False
+            except Exception as e:
+                self.conn_log_print.emit("出现问题, 请重启软件\n")
+            pass
 
     def model_list_inital(self):
         try:
